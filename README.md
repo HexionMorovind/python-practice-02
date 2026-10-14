@@ -37,7 +37,7 @@
 ## Запуск
 
 ```bash
-python variant4_purchase.py
+python main.py
 ```
 
 ## Как пользоваться программой
