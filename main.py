@@ -1,105 +1,56 @@
-# v2: multiple products support
+# -*- coding: utf-8 -*-
 """
 Практическая работа №2 (Вариант 4).
-Расчёт стоимости покупки: несколько товаров, скидка 5% при подытоге > 5000.
+Расчёт стоимости покупки: несколько товаров подряд.
+Скидка: >= 15000 -> 15%, >= 10000 -> 10%, >= 5000 -> 5%.
 """
 
-DISCOUNT_THRESHOLD = 5000.0
-DISCOUNT_RATE = 0.05
+items = []
 
+while True:
+    try:
+        name = input("Название товара: ")
+        price = float(input("Цена: "))
+        count = int(input("Количество: "))
+    except ValueError:
+        print("Ошибка: введены некорректные данные")
+        continue
 
-def ask_yes_no(prompt: str) -> bool:
-    """Запрашивает ответ да/нет, повторяет при некорректном вводе."""
-    while True:
-        answer = input(prompt).strip().lower()
-        if answer in ("да", "д", "yes", "y"):
-            return True
-        if answer in ("нет", "н", "no", "n"):
-            return False
-        print("Ошибка: введите 'да' или 'нет'.")
+    if not name.strip():
+        print("Ошибка: название товара не должно быть пустым")
+        continue
+    if price <= 0 or count <= 0:
+        print("Ошибка: цена и количество должны быть положительными")
+        continue
 
+    items.append((name, price, count))
 
-def ask_positive_float(prompt: str) -> float:
-    """Запрашивает положительное число, повторяет при ошибке."""
-    while True:
-        raw = input(prompt).strip().replace(",", ".")
-        try:
-            value = float(raw)
-        except ValueError:
-            print("Ошибка: введите корректное число.")
-            continue
-        if value <= 0:
-            print("Ошибка: значение должно быть положительным.")
-            continue
-        return value
+    answer = input("Добавить ещё один товар? (да/нет): ").strip().lower()
+    if answer == "нет":
+        break
+    elif answer != "да":
+        print("Ошибка: введите 'да' или 'нет'. Считаем, что вы ответили 'да'.")
 
+print("\n=== Чек ===")
+total = 0
+for name, price, count in items:
+    summa = price * count
+    total += summa
+    print(f"{name}: {price} x {count} = {summa}")
 
-def ask_positive_int(prompt: str) -> int:
-    """Запрашивает положительное целое число."""
-    while True:
-        raw = input(prompt).strip()
-        try:
-            value = int(raw)
-        except ValueError:
-            print("Ошибка: введите целое число.")
-            continue
-        if value <= 0:
-            print("Ошибка: значение должно быть положительным.")
-            continue
-        return value
+if total >= 15000:
+    skidka = 15
+elif total >= 10000:
+    skidka = 10
+elif total >= 5000:
+    skidka = 5
+else:
+    skidka = 0
 
+rub = total * skidka / 100
+itog = total - rub
 
-def ask_non_empty(prompt: str) -> str:
-    """Запрашивает непустую строку."""
-    while True:
-        value = input(prompt).strip()
-        if value:
-            return value
-        print("Ошибка: название не должно быть пустым.")
-
-
-def input_item() -> dict:
-    """Ввод одного товара с проверками."""
-    name = ask_non_empty("Введите название товара: ")
-    price = ask_positive_float("Введите цену: ")
-    quantity = ask_positive_int("Введите количество: ")
-    return {"name": name, "price": price, "quantity": quantity}
-
-
-def calculate_total(items: list) -> tuple:
-    """Возвращает (подытог, скидка, итог)."""
-    subtotal = sum(item["price"] * item["quantity"] for item in items)
-    discount = subtotal * DISCOUNT_RATE if subtotal > DISCOUNT_THRESHOLD else 0.0
-    total = subtotal - discount
-    return subtotal, discount, total
-
-
-def print_receipt(items: list, subtotal: float, discount: float, total: float) -> None:
-    print("\n=== Чек ===")
-    for item in items:
-        line_sum = item["price"] * item["quantity"]
-        print(f"{item['name']}: {item['price']:.2f} x {item['quantity']} = {line_sum:.2f}")
-    print("-" * 30)
-    print(f"Подытог: {subtotal:.2f}")
-    if discount > 0:
-        print(f"Скидка 5%: -{discount:.2f}")
-    print(f"Итого к оплате: {total:.2f}")
-
-
-def main() -> None:
-    print("=== Расчёт стоимости покупки ===")
-    items = []
-
-    while True:
-        item = input_item()
-        items.append(item)
-        if not ask_yes_no("Добавить ещё один товар? (да/нет): "):
-            break
-
-    subtotal, discount, total = calculate_total(items)
-    print_receipt(items, subtotal, discount, total)
-    print("\nРабота программы завершена.")
-
-
-if __name__ == "__main__":
-    main()
+print("\nСумма без скидки:", total)
+print("Скидка в процентах:", skidka, "%")
+print("Скидка в рублях:", rub)
+print("Итоговая цена:", itog)
